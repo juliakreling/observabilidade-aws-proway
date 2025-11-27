@@ -161,6 +161,11 @@ observabilidade-aws-proway/
    ```
    - Sobe exporter, ping exporter, Prometheus e Grafana. Use `-d` para rodar em background e `docker compose down` para encerrar. Como as pastas `grafana/provisioning` e `grafana/dashboards` são montadas dentro do container, qualquer alteração local reflete após `docker compose restart grafana`.
 
+## Infra AWS (Terraform)
+- Configure `terraform.tfvars` antes de `terraform plan`/`apply`, ajustando `allowed_cidr_ssh` e `allowed_cidr_observability` para IPs confiáveis (não deixe `0.0.0.0/0` em produção).
+- `variables.tf` centraliza VPC, subnet, key pair, AMI, usuário padrão e URL do repositório que será clonado via `user_data`.
+- Recomenda-se backend remoto (S3 + DynamoDB) para estado e lock; o estado local e `plan.out` estão ignorados por padrão.
+
 ## Checklist de implementação
 - [x] Criar diretório `exporter/` com Dockerfile e `config/`.
 - [x] Escrever instruções de build/run para o exporter no README.
@@ -169,7 +174,7 @@ observabilidade-aws-proway/
 - [x] Criar diretório `grafana/` com provisioning de datasource e dashboards.
 - [x] Registrar passo a passo para configurar usuário/senha inicial do Grafana.
 - [x] Escrever `docker-compose.yml` conectando exporter, Prometheus e Grafana.
-- [ ] Adicionar comandos de conveniência (scripts/Makefile) para subir e derrubar o stack.
+- [x] Adicionar comandos de conveniência (scripts/Makefile) para subir e derrubar o stack.
 - [ ] Validar fluxo completo: exporter → Prometheus → Grafana com dashboard básico.
 
 ## Como pedir os próximos passos
