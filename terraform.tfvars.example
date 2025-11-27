@@ -1,0 +1,10 @@
+# Copie este arquivo para terraform.tfvars e ajuste os valores conforme seu ambiente.
+vpc_id                   = "vpc-xxxxxxxx"
+subnet_id                = "subnet-xxxxxxxx"
+key_name                 = "minha-key"
+ami_id                   = "ami-xxxxxxxx"      # AMI compatível com Docker (ex.: Debian/Ubuntu)
+instance_type            = "t2.micro"
+allowed_cidr_ssh         = "1.2.3.4/32"        # Restrinja ao seu IP/bastion
+allowed_cidr_observability = "1.2.3.4/32"      # Grafana/Prometheus/exporters
+instance_username        = "ubuntu"            # Ou admin, conforme AMI
+repo_url                 = "https://github.com/<seu-usuario>/observabilidade-aws-proway.git"

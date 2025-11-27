@@ -11,7 +11,7 @@ Este diretório reúne o ambiente prático para instrumentar um host Linux usand
 
 ## Estrutura sugerida
 ```
-obs/
+observabilidade-aws-proway/
 ├── exporter/           # Dockerfile + configs do Node Exporter
 ├── ping-exporter/      # ping_exporter.yml com destinos/intervalos
 ├── prometheus/         # prometheus.yml, rules, data dir
@@ -32,15 +32,21 @@ obs/
 3. **Etapa 3 – Grafana**
    - Provisionar datasource (`grafana/provisioning/datasources/prometheus.yml`).
    - (Opcional) Provisionar dashboards prontos (dashboard 1860) ou custom simples.
-   - Garantir autenticação básica e persistência (admin/admin → alterar senha).
+   - Garantir autenticação básica e persistência (defina senha via `.env`).
 4. **Etapa 4 – Compose final**
    - Montar `docker-compose.yml` incluindo exporter, ping exporter, Prometheus e Grafana.
    - Scripts utilitários (`make up`, `make down`, etc.) se necessário.
 
+## Configuração rápida
+- Copie `.env.example` para `.env` e defina `GF_SECURITY_ADMIN_PASSWORD` (o valor não deve ser commitado).
+- Copie `terraform.tfvars.example` para `terraform.tfvars` e ajuste VPC, subnet, key pair, AMI, usuário padrão da AMI e CIDRs permitidos.
+- Para subir o stack local: `make up` (ou `docker compose up -d`), acesse `http://localhost:3000`.
+- Para derrubar: `make down`. Logs: `make logs`.
+
 ## Exporter – como construir e executar
 1. **Build da imagem**
    ```bash
-   cd obs
+   cd observabilidade-aws-proway
    docker build -t obs-node-exporter ./exporter
    ```
    - A imagem inclui o script `entrypoint.sh` que aplica as flags padrão e aceita variáveis extras via `NODE_EXPORTER_FLAGS`.
@@ -73,7 +79,7 @@ obs/
    - `prometheus/data/`: diretório sugerido para persistir a TSDB quando rodar via `docker run`.
 2. **Build da imagem**
    ```bash
-   cd obs
+   cd observabilidade-aws-proway
    docker build -t obs-prometheus ./prometheus
    ```
    - Sempre que alterar `prometheus.yml` ou `rules/`, execute um novo build.
@@ -107,7 +113,7 @@ obs/
    - `ping-exporter/ping_exporter.yml`: define os alvos (`192.168.1.1` identificado como `router` e `8.8.8.8` como `google`), bem como intervalo (`5s`), timeout e payload.
 2. **Executar isoladamente**
    ```bash
-   cd obs
+   cd observabilidade-aws-proway
    docker compose up ping-exporter
    ```
    - O container precisa de `CAP_NET_RAW` para enviar ICMP (já configurado no Compose).
@@ -126,7 +132,7 @@ obs/
    - `grafana/dashboards/node-exporter-overview.json`: painel com CPU, memória, disco `/`, processos, tráfego de rede e latências de ping (roteador/Google).
 2. **Build da imagem**
    ```bash
-   cd obs
+   cd observabilidade-aws-proway
    docker build -t obs-grafana ./grafana
    ```
 3. **Executar manualmente (usa mesma rede do Compose)**
@@ -146,7 +152,7 @@ obs/
    ```
    - O volume nomeado `grafana-data` pode ser criado previamente (`docker volume create grafana-data`).
 4. **Primeiro acesso**
-   - Navegue até `http://localhost:3000` e faça login com `admin/admin` (altere a senha imediatamente).
+   - Navegue até `http://localhost:3000` e faça login com o usuário definido em `.env` (padrão `admin`) e senha `GF_SECURITY_ADMIN_PASSWORD` (padrão `change-me` no `.env.example`). Altere a senha imediatamente.
    - O datasource Prometheus deve aparecer como *default* em *Connections → Data sources*.
    - O dashboard “Node Exporter – Visão rápida” aparece em *Dashboards → Observabilidade* com painéis para CPU, memória, disco `/`, processos, rede (RX/TX) e latência de ping dos dois alvos.
 5. **Usar Docker Compose (stack completa)**

@@ -31,3 +31,10 @@ terraform.tfvars.json
 ### Docker ###
 docker-data/
 *.tar
+
+# Observabilidade/Terraform extras
+.env
+plan.out
+*.tfplan
+*.zip
+secrets/
